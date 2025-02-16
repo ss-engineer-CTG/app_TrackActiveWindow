@@ -18,10 +18,31 @@ class Config:
             'log_retention_days': '30',
             'buffer_size': '500',
             'write_interval': '3',
-            'excluded_processes': 'explorer.exe,SystemSettings.exe'
+            'excluded_processes': 'explorer.exe,SystemSettings.exe',
+            'save_utf8_backup': 'true',
+            'encoding': 'shift-jis'  # デフォルトエンコーディング
         }
+
+        self.config['Advanced'] = {
+            'debug_mode': 'false',
+            'max_title_length': '256',
+            'sanitize_strings': 'true'  # 文字列のサニタイズを有効化
+        }
+
         with open(self.config_path, 'w', encoding='utf-8') as configfile:
             self.config.write(configfile)
 
     def get_value(self, section, key):
         return self.config.get(section, key)
+
+    def set_value(self, section, key, value):
+        """設定値を更新する"""
+        if not self.config.has_section(section):
+            self.config.add_section(section)
+        self.config.set(section, key, str(value))
+        with open(self.config_path, 'w', encoding='utf-8') as configfile:
+            self.config.write(configfile)
+
+    def get_boolean(self, section, key):
+        """ブール値として設定を取得する"""
+        return self.config.getboolean(section, key)
