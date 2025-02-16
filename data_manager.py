@@ -8,14 +8,21 @@ class DataManager:
     def __init__(self, buffer_size=500):
         self.buffer = []
         self.buffer_size = buffer_size
-        self.logs_dir = 'logs'
-        self.temp_dir = 'temp'
+        
+        # Get the directory where the script is located
+        self.base_dir = os.path.dirname(os.path.abspath(__file__))
+        
+        # Define absolute paths for logs and temp directories
+        self.logs_dir = os.path.join(self.base_dir, 'logs')
+        self.temp_dir = os.path.join(self.base_dir, 'temp')
+        
         self.setup_directories()
 
     def setup_directories(self):
         for directory in [self.logs_dir, self.temp_dir]:
             if not os.path.exists(directory):
                 os.makedirs(directory)
+                print(f"Created directory: {directory}")  # デバッグ用のログ出力
 
     def add_record(self, record):
         if record:
