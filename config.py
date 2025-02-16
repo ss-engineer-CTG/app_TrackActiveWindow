@@ -18,9 +18,7 @@ class Config:
             'log_retention_days': '30',
             'buffer_size': '500',
             'write_interval': '3',
-            'excluded_processes': 'explorer.exe,SystemSettings.exe',
-            'save_utf8_backup': 'true',
-            'encoding': 'shift-jis'  # デフォルトエンコーディング
+            'excluded_processes': 'explorer.exe,SystemSettings.exe'
         }
 
         self.config['Advanced'] = {

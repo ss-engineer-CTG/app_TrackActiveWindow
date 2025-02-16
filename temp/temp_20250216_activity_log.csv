@@ -1,3 +1,18 @@
 timestamp,process_name,window_title,process_id,file_name,file_path
 2025-02-16 20:15:30,Cursor.exe,main.py - Documents - Cursor,19608,Cursor.exe,C:\Users\gbrai\AppData\Local\Programs\cursor\Cursor.exe
 2025-02-16 20:15:31,python.exe,Window Tracker,25192,python.exe,C:\Users\gbrai\AppData\Local\Programs\Python\Python311\python.exe
+2025-02-16 20:33:02,Cursor.exe,main.py - Documents - Cursor,19608,Cursor.exe,C:\Users\gbrai\AppData\Local\Programs\cursor\Cursor.exe
+2025-02-16 20:33:03,python.exe,Window Tracker,28248,python.exe,C:\Users\gbrai\AppData\Local\Programs\Python\Python311\python.exe
+2025-02-16 20:33:13,explorer.exe,logs - エクスプローラー,12108,explorer.exe,C:\Windows\explorer.exe
+2025-02-16 20:33:26,python.exe,Window Tracker,28248,python.exe,C:\Users\gbrai\AppData\Local\Programs\Python\Python311\python.exe
+2025-02-16 20:33:33,Cursor.exe,main.py - Documents - Cursor,19608,Cursor.exe,C:\Users\gbrai\AppData\Local\Programs\cursor\Cursor.exe
+2025-02-16 20:33:34,python.exe,Window Tracker,6228,python.exe,C:\Users\gbrai\AppData\Local\Programs\Python\Python311\python.exe
+2025-02-16 20:33:36,Notepad.exe,*プログラムを深く分析して、次のプロンプトに備えてください。 txtファ - メモ帳,28012,Notepad.exe,C:\Program Files\WindowsApps\Microsoft.WindowsNotepad_11.2410.21.0_x64__8wekyb3d8bbwe\Notepad\Notepad.exe
+2025-02-16 20:33:40,WindowsTerminal.exe,Windows PowerShell,27104,WindowsTerminal.exe,C:\Program Files\WindowsApps\Microsoft.WindowsTerminal_1.21.10351.0_x64__8wekyb3d8bbwe\WindowsTerminal.exe
+2025-02-16 20:33:43,Cursor.exe,main.py - Documents - Cursor,19608,Cursor.exe,C:\Users\gbrai\AppData\Local\Programs\cursor\Cursor.exe
+2025-02-16 20:33:47,explorer.exe,logs - エクスプローラー,12108,explorer.exe,C:\Windows\explorer.exe
+2025-02-16 20:33:50,msedge.exe,ss-engineer-CTG/app_TrackActiveWindow at feature-20250216 および他 7 ページ - 個人 - Microsoft Edge,16288,msedge.exe,C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe
+2025-02-16 20:33:54,python.exe,Window Tracker,6228,python.exe,C:\Users\gbrai\AppData\Local\Programs\Python\Python311\python.exe
+2025-02-16 20:37:54,Cursor.exe,main.py - Documents - Cursor,19608,Cursor.exe,C:\Users\gbrai\AppData\Local\Programs\cursor\Cursor.exe
+2025-02-16 20:37:55,python.exe,Window Tracker,19416,python.exe,C:\Users\gbrai\AppData\Local\Programs\Python\Python311\python.exe
+2025-02-16 20:38:04,explorer.exe,logs - エクスプローラー,12108,explorer.exe,C:\Windows\explorer.exe

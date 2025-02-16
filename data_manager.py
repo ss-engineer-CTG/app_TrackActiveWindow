@@ -50,26 +50,22 @@ class DataManager:
         filename = f"{current_date}_activity_log.csv"
         filepath = os.path.join(self.logs_dir, filename)
         temp_filepath = os.path.join(self.temp_dir, f"temp_{filename}")
-        utf8_filepath = os.path.join(self.logs_dir, f"{current_date}_activity_log_utf8.csv")
 
         try:
             # Save to temporary file first
             self._write_to_csv(temp_filepath)
             
-            # If successful, copy to actual log files
+            # If successful, copy to actual log file
             shutil.copy2(temp_filepath, filepath)
-            
-            # Create UTF-8 backup
-            self._write_to_csv(utf8_filepath, encoding='utf-8')
             
             # Clear buffer after successful save
             self.buffer.clear()
         except Exception as e:
             self._log_error(str(e))
 
-    def _write_to_csv(self, filepath, encoding='shift-jis'):
+    def _write_to_csv(self, filepath):
         mode = 'a' if os.path.exists(filepath) else 'w'
-        with open(filepath, mode, encoding=encoding, newline='', errors='replace') as f:
+        with open(filepath, mode, encoding='shift-jis', newline='', errors='replace') as f:
             writer = csv.DictWriter(f, fieldnames=[
                 'timestamp', 'process_name', 'window_title', 
                 'process_id', 'file_name', 'file_path'
