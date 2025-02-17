@@ -3,11 +3,13 @@ import csv
 import os
 from datetime import datetime
 import shutil
+import threading
 
 class DataManager:
     def __init__(self, buffer_size=500):
         self.buffer = []
         self.buffer_size = buffer_size
+        self.buffer_lock = threading.Lock()  # スレッドセーフな操作のために追加
         
         # Get the directory where the script is located
         self.base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -22,11 +24,16 @@ class DataManager:
         for directory in [self.logs_dir, self.temp_dir]:
             if not os.path.exists(directory):
                 os.makedirs(directory)
-                print(f"Created directory: {directory}")  # デバッグ用のログ出力
 
     def add_record(self, record):
-        if record:
+        if not record:
+            return
+
+        with self.buffer_lock:
             self.buffer.append(record)
+            print(f"Record added to buffer. Buffer size: {len(self.buffer)}")  # デバッグ用
+            
+            # バッファサイズの80%に達したら保存
             if len(self.buffer) >= self.buffer_size * 0.8:
                 self.save_buffer()
 
@@ -34,31 +41,39 @@ class DataManager:
         if not self.buffer:
             return
 
-        current_date = datetime.now().strftime('%Y%m%d')
-        filename = f"{current_date}_activity_log.csv"
-        filepath = os.path.join(self.logs_dir, filename)
-        temp_filepath = os.path.join(self.temp_dir, f"temp_{filename}")
+        with self.buffer_lock:
+            current_date = datetime.now().strftime('%Y%m%d')
+            filename = f"{current_date}_activity_log.csv"
+            filepath = os.path.join(self.logs_dir, filename)
+            temp_filepath = os.path.join(self.temp_dir, f"temp_{filename}")
 
-        try:
-            # Save to temporary file first
-            self._write_to_csv(temp_filepath)
-            
-            # If successful, copy to actual log file
-            shutil.copy2(temp_filepath, filepath)
-            
-            # Clear buffer after successful save
-            self.buffer.clear()
-        except Exception as e:
-            # Log error
-            self._log_error(str(e))
+            try:
+                self._write_to_csv(temp_filepath)
+                print(f"Temporary file written: {temp_filepath}")  # デバッグ用
+                
+                # If successful, copy to actual log file
+                shutil.copy2(temp_filepath, filepath)
+                print(f"Log file updated: {filepath}")  # デバッグ用
+                
+                # Clear buffer after successful save
+                self.buffer.clear()
+            except Exception as e:
+                self._log_error(f"Error saving buffer: {str(e)}")
+                print(f"Error saving buffer: {str(e)}")  # デバッグ用
 
     def _write_to_csv(self, filepath):
+        fieldnames = [
+            'timestamp', 'process_name', 'window_title', 
+            'process_id', 'file_name', 'file_path'
+        ]
+        
+        # エクスプローラー用のフィールドを追加
+        if any('explorer_path' in record for record in self.buffer):
+            fieldnames.append('explorer_path')
+
         mode = 'a' if os.path.exists(filepath) else 'w'
         with open(filepath, mode, encoding='shift-jis', newline='') as f:
-            writer = csv.DictWriter(f, fieldnames=[
-                'timestamp', 'process_name', 'window_title', 
-                'process_id', 'file_name', 'file_path'
-            ])
+            writer = csv.DictWriter(f, fieldnames=fieldnames)
             if mode == 'w':
                 writer.writeheader()
             writer.writerows(self.buffer)
