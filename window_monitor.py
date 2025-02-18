@@ -21,8 +21,7 @@ class WindowMonitor:
             window_title = win32gui.GetWindowText(window)
             process_name = process.name()
             file_path = process.exe()
-            file_name = os.path.basename(file_path)
-
+            
             self.last_window = window
 
             return {
@@ -30,8 +29,9 @@ class WindowMonitor:
                 'process_name': process_name,
                 'window_title': window_title,
                 'process_id': pid,
-                'file_name': file_name,
-                'file_path': file_path
+                'file_name': os.path.basename(file_path),  # application_name として使用
+                'file_path': file_path,                    # application_path として使用
+                'explorer_path': ''                        # directory_path として使用（一般アプリは空文字）
             }
         except Exception as e:
             return None

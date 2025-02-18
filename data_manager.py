@@ -62,21 +62,37 @@ class DataManager:
                 print(f"Error saving buffer: {str(e)}")  # デバッグ用
 
     def _write_to_csv(self, filepath):
+        # 新しい列名定義
         fieldnames = [
-            'timestamp', 'process_name', 'window_title', 
-            'process_id', 'file_name', 'file_path'
+            'timestamp',
+            'process_name',
+            'window_title',
+            'process_id',
+            'application_name',
+            'application_path',
+            'directory_path'
         ]
-        
-        # エクスプローラー用のフィールドを追加
-        if any('explorer_path' in record for record in self.buffer):
-            fieldnames.append('explorer_path')
 
         mode = 'a' if os.path.exists(filepath) else 'w'
         with open(filepath, mode, encoding='shift-jis', newline='') as f:
             writer = csv.DictWriter(f, fieldnames=fieldnames)
             if mode == 'w':
                 writer.writeheader()
-            writer.writerows(self.buffer)
+            
+            updated_records = []
+            for record in self.buffer:
+                updated_record = {
+                    'timestamp': record['timestamp'],
+                    'process_name': record['process_name'],
+                    'window_title': record['window_title'],
+                    'process_id': record['process_id'],
+                    'application_name': record['file_name'],
+                    'application_path': record['file_path'],
+                    'directory_path': record.get('explorer_path', '')
+                }
+                updated_records.append(updated_record)
+            
+            writer.writerows(updated_records)
 
     def _log_error(self, error_message):
         error_log_path = os.path.join(self.logs_dir, 'tracking_error.log')

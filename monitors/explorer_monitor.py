@@ -10,9 +10,6 @@ import os
 class ExplorerWindowMonitor(BaseWindowMonitor):
     def __init__(self):
         super().__init__()
-        self.last_path = None
-        self.last_window = None
-        self.last_timestamp = None
         self._initialize_com()
 
     def _initialize_com(self):
@@ -46,29 +43,22 @@ class ExplorerWindowMonitor(BaseWindowMonitor):
             if not self.is_target_window(active_window):
                 return None
 
+            window_title = win32gui.GetWindowText(active_window)
             current_path = self._get_explorer_path(active_window)
             if current_path is None:
                 return None
 
-            # 重複チェックの改善
-            current_time = datetime.now()
-            # 同じウィンドウ、同じパスの場合、最低1秒は間隔を開ける
-            if (self.last_window == active_window and 
-                self.last_path == current_path and 
-                self.last_timestamp and 
-                (current_time - self.last_timestamp).total_seconds() < 1):
+            # タイトルのみで重複チェック
+            if window_title == self.last_title:
                 return None
 
-            window_title = win32gui.GetWindowText(active_window)
             pid = win32process.GetWindowThreadProcessId(active_window)[1]
 
-            # 状態の更新
-            self.last_window = active_window
-            self.last_path = current_path
-            self.last_timestamp = current_time
+            # 現在のタイトルを保存
+            self.last_title = window_title
 
             return {
-                'timestamp': current_time.strftime('%Y-%m-%d %H:%M:%S'),
+                'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
                 'process_name': 'explorer.exe',
                 'window_title': window_title,
                 'process_id': pid,
@@ -82,14 +72,13 @@ class ExplorerWindowMonitor(BaseWindowMonitor):
 
     def _get_explorer_path(self, hwnd):
         try:
-            # COMが初期化されていない場合は再初期化
             if self.shell is None:
                 self._initialize_com()
                 if self.shell is None:
                     return None
 
             windows = self.shell.Windows()
-            hwnd_str = str(hwnd)  # ハンドルを文字列として比較
+            hwnd_str = str(hwnd)
             
             for window in windows:
                 try:
@@ -107,5 +96,5 @@ class ExplorerWindowMonitor(BaseWindowMonitor):
             return None
         except Exception as e:
             print(f"Error in _get_explorer_path: {str(e)}")
-            self.shell = None  # シェルオブジェクトをリセット
+            self.shell = None
             return None

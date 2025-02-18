@@ -1,7 +1,7 @@
 # base_monitor.py
 class BaseWindowMonitor:
     def __init__(self):
-        self.last_window = None
+        self.last_title = None
 
     def get_active_window_info(self):
         raise NotImplementedError("Subclasses must implement get_active_window_info()")
