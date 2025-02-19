@@ -9,12 +9,9 @@ class DataManager:
     def __init__(self, buffer_size=500):
         self.buffer = []
         self.buffer_size = buffer_size
-        self.buffer_lock = threading.Lock()  # スレッドセーフな操作のために追加
+        self.buffer_lock = threading.Lock()
         
-        # Get the directory where the script is located
         self.base_dir = os.path.dirname(os.path.abspath(__file__))
-        
-        # Define absolute paths for logs and temp directories
         self.logs_dir = os.path.join(self.base_dir, 'logs')
         self.temp_dir = os.path.join(self.base_dir, 'temp')
         
@@ -31,9 +28,8 @@ class DataManager:
 
         with self.buffer_lock:
             self.buffer.append(record)
-            print(f"Record added to buffer. Buffer size: {len(self.buffer)}")  # デバッグ用
+            print(f"Record added to buffer. Buffer size: {len(self.buffer)}")
             
-            # バッファサイズの80%に達したら保存
             if len(self.buffer) >= self.buffer_size * 0.8:
                 self.save_buffer()
 
@@ -49,20 +45,17 @@ class DataManager:
 
             try:
                 self._write_to_csv(temp_filepath)
-                print(f"Temporary file written: {temp_filepath}")  # デバッグ用
+                print(f"Temporary file written: {temp_filepath}")
                 
-                # If successful, copy to actual log file
                 shutil.copy2(temp_filepath, filepath)
-                print(f"Log file updated: {filepath}")  # デバッグ用
+                print(f"Log file updated: {filepath}")
                 
-                # Clear buffer after successful save
                 self.buffer.clear()
             except Exception as e:
                 self._log_error(f"Error saving buffer: {str(e)}")
-                print(f"Error saving buffer: {str(e)}")  # デバッグ用
+                print(f"Error saving buffer: {str(e)}")
 
     def _write_to_csv(self, filepath):
-        # 新しい列名定義
         fieldnames = [
             'timestamp',
             'process_name',
@@ -70,7 +63,9 @@ class DataManager:
             'process_id',
             'application_name',
             'application_path',
-            'directory_path'
+            'directory_path',
+            'office_app_type',
+            'is_new_document'
         ]
 
         mode = 'a' if os.path.exists(filepath) else 'w'
@@ -88,7 +83,9 @@ class DataManager:
                     'process_id': record['process_id'],
                     'application_name': record['file_name'],
                     'application_path': record['file_path'],
-                    'directory_path': record.get('explorer_path', '')
+                    'directory_path': record.get('explorer_path', ''),
+                    'office_app_type': record.get('office_app_type', ''),
+                    'is_new_document': record.get('is_new_document', False)
                 }
                 updated_records.append(updated_record)
             

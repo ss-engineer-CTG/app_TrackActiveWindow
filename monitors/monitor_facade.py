@@ -1,6 +1,7 @@
 # monitor_facade.py
 from .general_monitor import GeneralWindowMonitor
 from .explorer_monitor import ExplorerWindowMonitor
+from .office_monitor import OfficeWindowMonitor
 from .window_selector import WindowSelector
 
 class WindowMonitorFacade:
@@ -9,8 +10,9 @@ class WindowMonitorFacade:
         self._setup_monitors()
     
     def _setup_monitors(self):
-        # Explorerモニターを先に登録して優先順位を高くする
+        # モニターの優先順位を設定: Explorer -> Office -> General
         self._selector.register_monitor('explorer', ExplorerWindowMonitor())
+        self._selector.register_monitor('office', OfficeWindowMonitor())
         self._selector.register_monitor('default', GeneralWindowMonitor())
     
     def get_active_window_info(self):

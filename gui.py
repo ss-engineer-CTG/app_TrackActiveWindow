@@ -31,6 +31,10 @@ class TrackerGUI:
         self.memory_label = ttk.Label(status_frame, text="Memory Usage: 0 MB")
         self.memory_label.pack(anchor=tk.W)
 
+        # Office Status Label
+        self.office_status_label = ttk.Label(status_frame, text="Active Office Doc: -")
+        self.office_status_label.pack(anchor=tk.W)
+
         # Control Buttons
         control_frame = ttk.Frame(self.root, padding=10)
         control_frame.pack(fill=tk.X)
@@ -42,33 +46,48 @@ class TrackerGUI:
         self.export_button.pack(side=tk.LEFT, padx=5)
 
     def update_status(self):
-        # Update memory usage
         process = psutil.Process(os.getpid())
         memory_mb = process.memory_info().rss / 1024 / 1024
-
-        # Update labels
         self.memory_label.config(text=f"Memory Usage: {memory_mb:.1f} MB")
         
-        # Count today's records
         current_date = datetime.now().strftime('%Y%m%d')
         log_file = os.path.join(self.data_manager.logs_dir, f"{current_date}_activity_log.csv")
         record_count = 0
         if os.path.exists(log_file):
             with open(log_file, 'r', encoding='shift-jis') as f:
-                record_count = sum(1 for line in f) - 1  # Subtract header row
+                record_count = sum(1 for line in f) - 1
 
         self.record_count_label.config(text=f"Records Today: {record_count}")
+
+        # Update Office document status
+        if self.data_manager.buffer:
+            latest_record = self.data_manager.buffer[-1]
+            if 'office_app_type' in latest_record and latest_record['office_app_type']:
+                office_info = f"{latest_record['office_app_type']}: {latest_record['file_name']}"
+                self.office_status_label.config(text=f"Active Office Doc: {office_info}")
+            
+            # Update last record label
+            self.last_record_label.config(
+                text=f"Last Record: {latest_record['window_title'][:30]}..."
+                if len(latest_record['window_title']) > 30
+                else f"Last Record: {latest_record['window_title']}"
+            )
         
-        # Schedule next update
         self.root.after(1000, self.update_status)
 
     def toggle_pause(self):
         # Implementation for pause/resume functionality
-        pass
+        current_status = self.status_label.cget("text")
+        if "Running" in current_status:
+            self.status_label.config(text="Status: Paused")
+            self.pause_button.config(text="Resume")
+        else:
+            self.status_label.config(text="Status: Running")
+            self.pause_button.config(text="Pause")
 
     def export_csv(self):
-        # Implementation for CSV export functionality
-        pass
+        # Save current buffer before export
+        self.data_manager.save_buffer()
 
     def run(self):
         self.update_status()
