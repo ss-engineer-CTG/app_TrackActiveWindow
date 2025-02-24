@@ -11,9 +11,16 @@ class WindowSelector:
         # 登録順序の管理
         if window_class == 'explorer':
             self.monitor_order.insert(0, window_class)
-        elif window_class == 'office':
-            # officeは2番目に優先順位を設定
+        elif window_class == 'excel':  # 新しいExcelモニター用
             if 'explorer' in self.monitor_order:
+                self.monitor_order.insert(1, window_class)
+            else:
+                self.monitor_order.insert(0, window_class)
+        elif window_class == 'office':
+            # officeは3番目に優先順位を設定
+            if 'excel' in self.monitor_order:
+                self.monitor_order.insert(2, window_class)
+            elif 'explorer' in self.monitor_order:
                 self.monitor_order.insert(1, window_class)
             else:
                 self.monitor_order.insert(0, window_class)

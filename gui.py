@@ -31,9 +31,9 @@ class TrackerGUI:
         self.memory_label = ttk.Label(status_frame, text="Memory Usage: 0 MB")
         self.memory_label.pack(anchor=tk.W)
 
-        # Office Status Label
-        self.office_status_label = ttk.Label(status_frame, text="Active Office Doc: -")
-        self.office_status_label.pack(anchor=tk.W)
+        # Monitor Type Label (新規追加)
+        self.monitor_type_label = ttk.Label(status_frame, text="Monitor Type: -")
+        self.monitor_type_label.pack(anchor=tk.W)
 
         # Control Buttons
         control_frame = ttk.Frame(self.root, padding=10)
@@ -59,24 +59,27 @@ class TrackerGUI:
 
         self.record_count_label.config(text=f"Records Today: {record_count}")
 
-        # Update Office document status
+        # 最新レコードの情報を更新
         if self.data_manager.buffer:
             latest_record = self.data_manager.buffer[-1]
-            if 'office_app_type' in latest_record and latest_record['office_app_type']:
-                office_info = f"{latest_record['office_app_type']}: {latest_record['file_name']}"
-                self.office_status_label.config(text=f"Active Office Doc: {office_info}")
             
-            # Update last record label
-            self.last_record_label.config(
-                text=f"Last Record: {latest_record['window_title'][:30]}..."
-                if len(latest_record['window_title']) > 30
-                else f"Last Record: {latest_record['window_title']}"
-            )
+            # モニタータイプの判定と表示
+            monitor_type = 'general'
+            if latest_record.get('office_app_type'):
+                monitor_type = 'office'
+            elif latest_record.get('explorer_path') and latest_record['process_name'].lower() == 'explorer.exe':
+                monitor_type = 'explorer'
+            
+            self.monitor_type_label.config(text=f"Monitor Type: {monitor_type}")
+            
+            # 最後のレコードのタイトル表示
+            window_title = latest_record['window_title']
+            display_title = f"{window_title[:30]}..." if len(window_title) > 30 else window_title
+            self.last_record_label.config(text=f"Last Record: {display_title}")
         
         self.root.after(1000, self.update_status)
 
     def toggle_pause(self):
-        # Implementation for pause/resume functionality
         current_status = self.status_label.cget("text")
         if "Running" in current_status:
             self.status_label.config(text="Status: Paused")
@@ -86,7 +89,6 @@ class TrackerGUI:
             self.pause_button.config(text="Pause")
 
     def export_csv(self):
-        # Save current buffer before export
         self.data_manager.save_buffer()
 
     def run(self):

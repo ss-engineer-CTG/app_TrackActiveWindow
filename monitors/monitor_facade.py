@@ -2,6 +2,7 @@
 from .general_monitor import GeneralWindowMonitor
 from .explorer_monitor import ExplorerWindowMonitor
 from .office_monitor import OfficeWindowMonitor
+from .office_excel_monitor import OfficeExcelMonitor
 from .window_selector import WindowSelector
 
 class WindowMonitorFacade:
@@ -10,8 +11,9 @@ class WindowMonitorFacade:
         self._setup_monitors()
     
     def _setup_monitors(self):
-        # モニターの優先順位を設定: Explorer -> Office -> General
+        # モニターの優先順位を設定: Explorer -> Excel -> Office -> General
         self._selector.register_monitor('explorer', ExplorerWindowMonitor())
+        self._selector.register_monitor('excel', OfficeExcelMonitor())
         self._selector.register_monitor('office', OfficeWindowMonitor())
         self._selector.register_monitor('default', GeneralWindowMonitor())
     

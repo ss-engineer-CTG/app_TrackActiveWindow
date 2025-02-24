@@ -64,7 +64,7 @@ class DataManager:
             'application_name',
             'application_path',
             'directory_path',
-            'office_app_type',
+            'monitor_type',
             'is_new_document'
         ]
 
@@ -76,6 +76,13 @@ class DataManager:
             
             updated_records = []
             for record in self.buffer:
+                # モニタータイプの判定
+                monitor_type = 'general'  # デフォルト値
+                if record.get('office_app_type'):
+                    monitor_type = 'office'
+                elif record.get('explorer_path') and record['process_name'].lower() == 'explorer.exe':
+                    monitor_type = 'explorer'
+
                 updated_record = {
                     'timestamp': record['timestamp'],
                     'process_name': record['process_name'],
@@ -84,7 +91,7 @@ class DataManager:
                     'application_name': record['file_name'],
                     'application_path': record['file_path'],
                     'directory_path': record.get('explorer_path', ''),
-                    'office_app_type': record.get('office_app_type', ''),
+                    'monitor_type': monitor_type,
                     'is_new_document': record.get('is_new_document', False)
                 }
                 updated_records.append(updated_record)
