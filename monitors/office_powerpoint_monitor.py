@@ -119,7 +119,7 @@ class OfficePowerPointMonitor(BaseWindowMonitor):
                     process_id=pid,
                     application_name='powerpnt.exe',
                     application_path=application_path,
-                    working_directory=os.path.dirname(presentation_path),
+                    working_directory=presentation_path,  # ← ここを変更: フォルダパスではなくフルパスを使用
                     monitor_type='office',
                     is_new_document=False,
                     office_app_type='PowerPoint'

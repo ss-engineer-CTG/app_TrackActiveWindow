@@ -8,6 +8,7 @@ import psutil
 import os
 from typing import Optional
 import logging
+import time
 from .window_info import WindowInfo
 
 class OfficeWordMonitor(BaseWindowMonitor):
@@ -56,9 +57,17 @@ class OfficeWordMonitor(BaseWindowMonitor):
             if window_title == self.last_title:
                 return None
 
+            # キャッシュチェックを追加
+            if window in self._cache:
+                cache_time, cache_data = self._cache.get(window, (0, None))
+                if time.time() - cache_time < self._cache_timeout:
+                    return cache_data
+
             info = self._get_word_document_info(window)
             if info:
                 self.last_title = window_title
+                # キャッシュ保存を追加
+                self._cache[window] = (time.time(), info)
 
             return info
 
@@ -74,8 +83,10 @@ class OfficeWordMonitor(BaseWindowMonitor):
             window_title = win32gui.GetWindowText(window)
             application_path = process.exe()
 
-            # Word アプリケーションへの接続を試みる
-            if not self._word_instance:
+            # 前回の接続試行から一定時間経過していれば再接続を試みる
+            current_time = time.time()
+            if not self._word_instance and current_time - self._last_connection_attempt >= self._retry_interval:
+                self._last_connection_attempt = current_time
                 try:
                     self._word_instance = win32com.client.GetObject(None, 'Word.Application')
                 except Exception as e:
@@ -85,34 +96,38 @@ class OfficeWordMonitor(BaseWindowMonitor):
                 return self._create_basic_info(window, process)
 
             # アクティブドキュメントの情報を取得
-            active_document = self._word_instance.ActiveDocument
-            document_path = active_document.FullName if hasattr(active_document, 'FullName') else ''
-            is_new = not bool(document_path)
+            try:
+                active_document = self._word_instance.ActiveDocument
+                document_path = active_document.FullName if hasattr(active_document, 'FullName') else ''
+                is_new = not bool(document_path)
 
-            if is_new:
+                if is_new:
+                    return WindowInfo.create(
+                        process_name='winword.exe',
+                        window_title=window_title,
+                        process_id=pid,
+                        application_name='winword.exe',
+                        application_path=application_path,
+                        working_directory='',
+                        monitor_type='office',
+                        is_new_document=True,
+                        office_app_type='Word'
+                    )
+
                 return WindowInfo.create(
                     process_name='winword.exe',
                     window_title=window_title,
                     process_id=pid,
                     application_name='winword.exe',
                     application_path=application_path,
-                    working_directory='',
+                    working_directory=document_path,  # ← ここを変更: ディレクトリではなくフルパスを使用
                     monitor_type='office',
-                    is_new_document=True,
+                    is_new_document=False,
                     office_app_type='Word'
                 )
-
-            return WindowInfo.create(
-                process_name='winword.exe',
-                window_title=window_title,
-                process_id=pid,
-                application_name='winword.exe',
-                application_path=application_path,
-                working_directory=os.path.dirname(document_path),
-                monitor_type='office',
-                is_new_document=False,
-                office_app_type='Word'
-            )
+            except Exception as e:
+                logging.error(f"Error accessing Word document: {e}")
+                return self._create_basic_info(window, process)
 
         except Exception as e:
             logging.error(f"Error in _get_word_document_info: {e}")
