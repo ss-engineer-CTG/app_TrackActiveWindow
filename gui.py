@@ -4,6 +4,7 @@ from tkinter import ttk
 import psutil
 from datetime import datetime
 import os
+from typing import Optional
 
 class TrackerGUI:
     def __init__(self, data_manager):
@@ -31,7 +32,7 @@ class TrackerGUI:
         self.memory_label = ttk.Label(status_frame, text="Memory Usage: 0 MB")
         self.memory_label.pack(anchor=tk.W)
 
-        # Monitor Type Label (新規追加)
+        # Monitor Type Label
         self.monitor_type_label = ttk.Label(status_frame, text="Monitor Type: -")
         self.monitor_type_label.pack(anchor=tk.W)
 
@@ -54,8 +55,15 @@ class TrackerGUI:
         log_file = os.path.join(self.data_manager.logs_dir, f"{current_date}_activity_log.csv")
         record_count = 0
         if os.path.exists(log_file):
-            with open(log_file, 'r', encoding='shift-jis') as f:
-                record_count = sum(1 for line in f) - 1
+            try:
+                with open(log_file, 'r', encoding='utf-8') as f:
+                    record_count = sum(1 for line in f) - 1
+            except UnicodeDecodeError:
+                try:
+                    with open(log_file, 'r', encoding='shift-jis', errors='ignore') as f:
+                        record_count = sum(1 for line in f) - 1
+                except Exception as e:
+                    print(f"Error reading log file: {e}")
 
         self.record_count_label.config(text=f"Records Today: {record_count}")
 
@@ -63,17 +71,12 @@ class TrackerGUI:
         if self.data_manager.buffer:
             latest_record = self.data_manager.buffer[-1]
             
-            # モニタータイプの判定と表示
-            monitor_type = 'general'
-            if latest_record.get('office_app_type'):
-                monitor_type = 'office'
-            elif latest_record.get('explorer_path') and latest_record['process_name'].lower() == 'explorer.exe':
-                monitor_type = 'explorer'
-            
+            # モニタータイプの表示
+            monitor_type = latest_record.monitor_type
             self.monitor_type_label.config(text=f"Monitor Type: {monitor_type}")
             
             # 最後のレコードのタイトル表示
-            window_title = latest_record['window_title']
+            window_title = latest_record.window_title
             display_title = f"{window_title[:30]}..." if len(window_title) > 30 else window_title
             self.last_record_label.config(text=f"Last Record: {display_title}")
         

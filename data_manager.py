@@ -4,10 +4,12 @@ import os
 from datetime import datetime
 import shutil
 import threading
+from typing import List, Dict, Any, Optional
+from .monitors.window_info import WindowInfo
 
 class DataManager:
-    def __init__(self, buffer_size=500):
-        self.buffer = []
+    def __init__(self, buffer_size: int = 500):
+        self.buffer: List[WindowInfo] = []
         self.buffer_size = buffer_size
         self.buffer_lock = threading.Lock()
         
@@ -22,7 +24,7 @@ class DataManager:
             if not os.path.exists(directory):
                 os.makedirs(directory)
 
-    def add_record(self, record):
+    def add_record(self, record: Optional[WindowInfo]) -> None:
         if not record:
             return
 
@@ -33,7 +35,7 @@ class DataManager:
             if len(self.buffer) >= self.buffer_size * 0.8:
                 self.save_buffer()
 
-    def save_buffer(self):
+    def save_buffer(self) -> None:
         if not self.buffer:
             return
 
@@ -55,7 +57,7 @@ class DataManager:
                 self._log_error(f"Error saving buffer: {str(e)}")
                 print(f"Error saving buffer: {str(e)}")
 
-    def _write_to_csv(self, filepath):
+    def _write_to_csv(self, filepath: str) -> None:
         fieldnames = [
             'timestamp',
             'process_name',
@@ -63,9 +65,10 @@ class DataManager:
             'process_id',
             'application_name',
             'application_path',
-            'directory_path',
+            'working_directory',
             'monitor_type',
-            'is_new_document'
+            'is_new_document',
+            'office_app_type'
         ]
 
         mode = 'a' if os.path.exists(filepath) else 'w'
@@ -74,31 +77,21 @@ class DataManager:
             if mode == 'w':
                 writer.writeheader()
             
-            updated_records = []
             for record in self.buffer:
-                # モニタータイプの判定
-                monitor_type = 'general'  # デフォルト値
-                if record.get('office_app_type'):
-                    monitor_type = 'office'
-                elif record.get('explorer_path') and record['process_name'].lower() == 'explorer.exe':
-                    monitor_type = 'explorer'
+                writer.writerow({
+                    'timestamp': record.timestamp,
+                    'process_name': record.process_name,
+                    'window_title': record.window_title,
+                    'process_id': record.process_id,
+                    'application_name': record.application_name,
+                    'application_path': record.application_path,
+                    'working_directory': record.working_directory,
+                    'monitor_type': record.monitor_type,
+                    'is_new_document': record.is_new_document,
+                    'office_app_type': record.office_app_type or ''
+                })
 
-                updated_record = {
-                    'timestamp': record['timestamp'],
-                    'process_name': record['process_name'],
-                    'window_title': record['window_title'],
-                    'process_id': record['process_id'],
-                    'application_name': record['file_name'],
-                    'application_path': record['file_path'],
-                    'directory_path': record.get('explorer_path', ''),
-                    'monitor_type': monitor_type,
-                    'is_new_document': record.get('is_new_document', False)
-                }
-                updated_records.append(updated_record)
-            
-            writer.writerows(updated_records)
-
-    def _log_error(self, error_message):
+    def _log_error(self, error_message: str) -> None:
         error_log_path = os.path.join(self.logs_dir, 'tracking_error.log')
         timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         with open(error_log_path, 'a', encoding='utf-8') as f:
