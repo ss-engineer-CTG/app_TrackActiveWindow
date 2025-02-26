@@ -20,10 +20,31 @@ class Config:
             'write_interval': '3',
             'excluded_processes': 'explorer.exe,SystemSettings.exe',
             'office_cache_timeout': '5',
-            'office_retry_interval': '5'
+            'office_retry_interval': '5',
+            'office_com_timeout': '30',  # COMオブジェクトのアイドルタイムアウト（秒）
+            'cache_capacity': '50'       # キャッシュの最大容量
         }
+        
+        # ブラウザ設定セクションを追加
+        self.config['Browser'] = {
+            'capture_urls': 'false',      # URL取得機能（拡張機能連携時のみ有効）
+            'enhanced_monitoring': 'false', # 拡張機能との連携
+            'track_tab_changes': 'false',  # タブ切り替え監視機能
+            'excluded_domains': 'example.com,internal.local'  # 監視対象外ドメイン
+        }
+        
         with open(self.config_path, 'w', encoding='utf-8') as configfile:
             self.config.write(configfile)
 
     def get_value(self, section, key):
         return self.config.get(section, key)
+        
+    def set_value(self, section, key, value):
+        """設定値を更新し、ファイルに保存する"""
+        if not self.config.has_section(section):
+            self.config.add_section(section)
+            
+        self.config.set(section, key, value)
+        
+        with open(self.config_path, 'w', encoding='utf-8') as configfile:
+            self.config.write(configfile)
