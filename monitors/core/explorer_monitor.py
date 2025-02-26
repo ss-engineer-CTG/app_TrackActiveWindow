@@ -5,8 +5,8 @@ import win32process
 import pythoncom
 import os
 from typing import Optional
-from .base_monitor import BaseWindowMonitor
-from .window_info import WindowInfo
+from ..base.base_monitor import BaseWindowMonitor
+from ...models.window_info import WindowInfo
 
 class ExplorerWindowMonitor(BaseWindowMonitor):
     def __init__(self):

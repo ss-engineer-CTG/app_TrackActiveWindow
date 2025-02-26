@@ -1,8 +1,8 @@
 # window_selector.py
 from typing import Dict, Optional, List
 import win32gui
-from .base_monitor import BaseWindowMonitor
-from .window_info import WindowInfo
+from .base.base_monitor import BaseWindowMonitor
+from ..models.window_info import WindowInfo
 
 class WindowSelector:
     def __init__(self):
@@ -13,7 +13,7 @@ class WindowSelector:
         self.monitors[window_class] = monitor
         
         # 優先順位に基づいてモニターを追加
-        # Explorer -> Excel -> Word -> PowerPoint -> その他
+        # Explorer -> Excel -> Word -> PowerPoint -> Browser -> PDF -> その他
         if window_class == 'explorer':
             self._insert_at_position(window_class, 0)
         elif window_class == 'excel': 
@@ -22,6 +22,10 @@ class WindowSelector:
             self._insert_after(window_class, 'excel')
         elif window_class == 'powerpoint':
             self._insert_after(window_class, 'word')
+        elif window_class == 'browser':  # 新規追加：ブラウザモニターの優先順位設定
+            self._insert_after(window_class, 'powerpoint')
+        elif window_class == 'pdf':  # PDFの優先順位をブラウザの後に変更
+            self._insert_after(window_class, 'browser')
         else:
             self.monitor_order.append(window_class)
 
