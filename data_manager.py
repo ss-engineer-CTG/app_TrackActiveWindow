@@ -8,6 +8,7 @@ import threading
 import codecs
 from typing import List, Dict, Any, Optional, Set
 from .models.window_info import WindowInfo
+from .utils.paths import get_logs_dir, get_temp_dir, ensure_dir_exists
 
 class DataManager:
     def __init__(self, buffer_size: int = 500):
@@ -17,16 +18,15 @@ class DataManager:
         # 重複検出用ハッシュセット
         self.window_hash_set: Set[str] = set()
         
-        self.base_dir = os.path.dirname(os.path.abspath(__file__))
-        self.logs_dir = os.path.join(self.base_dir, 'logs')
-        self.temp_dir = os.path.join(self.base_dir, 'temp')
+        # ログディレクトリとテンプディレクトリのパスを取得
+        self.logs_dir = get_logs_dir()
+        self.temp_dir = get_temp_dir()
         
         self.setup_directories()
 
     def setup_directories(self):
         for directory in [self.logs_dir, self.temp_dir]:
-            if not os.path.exists(directory):
-                os.makedirs(directory)
+            ensure_dir_exists(directory)
 
     def _generate_window_hash(self, record: WindowInfo) -> str:
         """WindowInfoから一意のハッシュを生成"""

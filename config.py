@@ -1,11 +1,14 @@
 # config.py
 import configparser
 import os
+from .utils.paths import get_config_path, ensure_dir_exists
 
 class Config:
-    def __init__(self, config_path='tracking.ini'):
+    def __init__(self, config_path=None):
         self.config = configparser.ConfigParser()
-        self.config_path = config_path
+        
+        # 設定ファイルのパスを取得
+        self.config_path = config_path if config_path else get_config_path()
         self.load_config()
 
     def load_config(self):
@@ -32,6 +35,10 @@ class Config:
             'track_tab_changes': 'false',  # タブ切り替え監視機能
             'excluded_domains': 'example.com,internal.local'  # 監視対象外ドメイン
         }
+        
+        # 設定ファイルのディレクトリが存在することを確認
+        config_dir = os.path.dirname(self.config_path)
+        ensure_dir_exists(config_dir)
         
         with open(self.config_path, 'w', encoding='utf-8') as configfile:
             self.config.write(configfile)

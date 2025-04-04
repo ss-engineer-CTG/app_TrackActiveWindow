@@ -18,9 +18,12 @@ class GeneralWindowMonitor(BaseWindowMonitor):
         self._excluded_processes: Set[str] = set()
         self._load_excluded_processes()
         
-        # 除外ウィンドウクラス（他のモニターで処理されるクラス）
+        # 除外ウィンドウクラス（他のモニターで処理されるクラス）- 拡張版
         self._excluded_classes: Set[str] = {
-            "CabinetWClass", "ExploreWClass"  # エクスプローラー
+            # Explorer関連クラス（拡張）
+            "CabinetWClass", "ExploreWClass",  # 標準エクスプローラー
+            "WorkerW", "Progman",  # デスクトップ関連
+            "ShellTabWindowClass"  # タブ付きエクスプローラー
         }
         
         # 除外ブラウザプロセス（ブラウザモニターで処理するプロセス）
@@ -53,7 +56,7 @@ class GeneralWindowMonitor(BaseWindowMonitor):
             if not class_name or class_name in self._excluded_classes:
                 return False
             
-            # プロセス名のチェック（除外リストにあるプロセスは除外）
+            # Explorer検出の強化（プロセス名とウィンドウタイトルの組み合わせ）
             _, pid = win32process.GetWindowThreadProcessId(window)
             
             # キャッシュからプロセス名を取得
@@ -61,6 +64,15 @@ class GeneralWindowMonitor(BaseWindowMonitor):
                 process_name = self._process_cache[pid].get('name')
                 if process_name:
                     process_name_lower = process_name.lower()
+                    # プロセス名がエクスプローラーで、かつタイトルにエクスプローラー特有の特徴がある場合は除外
+                    if process_name_lower == "explorer.exe":
+                        window_title = win32gui.GetWindowText(window)
+                        # エクスプローラーっぽいタイトルパターンをチェック
+                        if any(pattern in window_title for pattern in [
+                            " - エクスプローラー", " - Explorer", " - File Explorer", ":\\"
+                        ]):
+                            return False
+                    
                     # 除外プロセスまたはブラウザプロセスの場合は除外
                     if (process_name_lower in self._excluded_processes or 
                         process_name_lower in self._excluded_browser_processes):
@@ -70,6 +82,16 @@ class GeneralWindowMonitor(BaseWindowMonitor):
                 try:
                     process = psutil.Process(pid)
                     process_name = process.name().lower()
+                    
+                    # プロセス名がエクスプローラーで、かつタイトルにエクスプローラー特有の特徴がある場合は除外
+                    if process_name == "explorer.exe":
+                        window_title = win32gui.GetWindowText(window)
+                        # エクスプローラーっぽいタイトルパターンをチェック
+                        if any(pattern in window_title for pattern in [
+                            " - エクスプローラー", " - Explorer", " - File Explorer", ":\\"
+                        ]):
+                            return False
+                    
                     if (process_name in self._excluded_processes or 
                         process_name in self._excluded_browser_processes):
                         return False
