@@ -1,0 +1,144 @@
+# Python-based Windows Activity Tracker .gitignore
+
+# Build and distribution directories
+build/
+dist/
+installer/
+*.manifest
+*.application
+*.deploy
+
+# Python bytecode and cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+pip-log.txt
+pip-delete-this-directory.txt
+.coverage
+htmlcov/
+.tox/
+.nox/
+.hypothesis/
+.pytest_cache/
+.coverage.*
+coverage.xml
+*.cover
+
+# Virtual environment
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+Include/
+Lib/
+Scripts/
+pyvenv.cfg
+
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.pydevproject
+.settings/
+.spyderproject
+.spyproject
+.ropeproject
+*.sublime-project
+*.sublime-workspace
+.ipynb_checkpoints
+
+# Windows specific
+*.exe
+*.dll
+*.pyd
+*.obj
+*.exp
+*.lib
+*.iobj
+*.ipdb
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Application generated files
+logs/
+*/logs/
+temp/
+*/temp/
+*.log
+*.csv
+*.db
+*.sqlite3
+
+# User-specific configuration
+config/*.ini
+*/config/*.ini
+!config/default.ini
+
+# PyInstaller specific
+*.manifest
+*.spec
+!TrackActiveWindow.spec  # Keep project-specific spec file
+
+# Packaging and distribution
+.Python
+*.egg
+*.egg-info/
+.eggs/
+.installed.cfg
+MANIFEST
+
+# Documentation
+docs/_build/
+docs/api/
+
+# C extensions and compiled assets
+*.pyd
+*.pyx
+*.pxd
+*.c
+*.cpp
+*.html.py
+
+# Translations
+*.mo
+*.pot
+
+# Unit test / coverage reports
+.coverage
+.coverage.*
+*.cover
+.hypothesis/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# OS specific cache files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+
+# Office temporary files
+~$*.docx
+~$*.xlsx
+~$*.pptx
+*.tmp
+*.bak
